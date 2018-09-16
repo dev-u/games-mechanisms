@@ -31,5 +31,9 @@ public class PlayerController : MonoBehaviour {
             animator.SetBool( "walking", false );
         }
 
+        if ( Input.GetButtonDown( "Jump" ) ) {
+            animator.SetBool( "jumping", true );
+        }
+
 	}
 }
