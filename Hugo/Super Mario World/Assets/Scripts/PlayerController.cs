@@ -61,10 +61,10 @@ public class PlayerController : MonoBehaviour {
             Walking = false;
         }
 
-        grounded = Physics2D.OverlapCircle( groundCheck.position, 0.2f, whatIsGround );
+        grounded = Physics2D.OverlapCircle( groundCheck.position, 0.001f, whatIsGround );
         Jumping = !grounded;
 
-        if ( Input.GetButtonDown( "Jump" ) ) {
+        if ( grounded && Input.GetButtonDown( "Jump" ) ) {
             rigidbody2D.AddForce( Vector2.up * jumpForce );
         }
     }
