@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour {
     private SpriteRenderer spriteRenderer;
     private bool walking;
 
+    [SerializeField]
+    private float speed = 2f;
+
     // Use this for initialization
     void Awake() {
         animator = gameObject.GetComponent<Animator>();
@@ -20,11 +23,10 @@ public class PlayerController : MonoBehaviour {
         
         if(horizontal != 0 ) {
             animator.SetBool( "walking", true );
-            if ( horizontal > 0 ) {
-                spriteRenderer.flipX = true;
-            } else {
-                spriteRenderer.flipX = false;
-            }
+            transform.position += Vector3.right * speed * Time.deltaTime * horizontal;
+
+            spriteRenderer.flipX = horizontal > 0 ? true : false;
+
         } else {
             animator.SetBool( "walking", false );
         }
