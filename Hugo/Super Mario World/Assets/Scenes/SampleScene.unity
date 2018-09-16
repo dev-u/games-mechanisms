@@ -401,6 +401,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpForce: 150
+  walkSpeed: 0.65
   groundCheck: {fileID: 2131952042}
   whatIsGround:
     serializedVersion: 2

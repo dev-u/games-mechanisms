@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour {
 
     [SerializeField]
     private int jumpForce = 150;
+    [SerializeField]
+    private float walkSpeed = 0.4f;
 
     // Verifies the ground
     public Transform groundCheck;
@@ -50,8 +52,9 @@ public class PlayerController : MonoBehaviour {
 
         if (horz != 0f ) {
             Walking = true;
+            transform.position += Vector3.right * horz * walkSpeed * Time.deltaTime;
 
-            if(horz > 0 ) {
+            if (horz > 0 ) {
                 spriteRenderer.flipX = false;
             } else {
                 spriteRenderer.flipX = true;
