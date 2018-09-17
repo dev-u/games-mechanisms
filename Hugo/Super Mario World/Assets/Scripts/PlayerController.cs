@@ -33,6 +33,24 @@ public class PlayerController : MonoBehaviour {
 
 
     // Animation Controller Variables
+    private bool lookingUp;
+    public bool LookingUp {
+        get { return lookingUp; }
+        set {
+            lookingUp = value;
+            animator.SetBool( "lookinup", lookingUp );
+        }
+    }
+
+    private bool crouched;
+    public bool Crouched {
+        get { return crouched; }
+        set {
+            crouched = value;
+            animator.SetBool( "crouched", crouched );
+        }
+    }
+
     private bool jumping;
     public bool Jumping {
         get { return jumping; }
@@ -116,7 +134,21 @@ public class PlayerController : MonoBehaviour {
     // Update is called once per frame
     void FixedUpdate() {
         float horz = Input.GetAxis("Horizontal");
+        float vert = Input.GetAxis("Vertical");
+
         grounded = Physics2D.OverlapBox( groundCheck.position, new Vector2( boxCollider2D.size.x, 0.001f ), 0f, whatIsGround );
+
+        if ( vert != 0 ) {
+            if ( vert > 0 ) {
+                LookingUp = true;
+            }
+            if(vert < 0 ) {
+                Crouched = true;
+            }
+        } else {
+            LookingUp = false;
+            Crouched = false;
+        }
 
         if ( horz != 0f ) {
             if ( !Running && !FastWalking )

@@ -505,7 +505,7 @@ MonoBehaviour:
   walkSpeed: 0.65
   fastWalkSpeed: 1.3
   runSpeed: 2
-  timeUntilMaxSpeed: 1
+  timeUntilMaxSpeed: 0.6
   groundCheck: {fileID: 2131952042}
   whatIsGround:
     serializedVersion: 2
