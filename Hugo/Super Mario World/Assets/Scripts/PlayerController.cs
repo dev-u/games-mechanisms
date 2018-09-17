@@ -138,15 +138,18 @@ public class PlayerController : MonoBehaviour {
 
         grounded = Physics2D.OverlapBox( groundCheck.position, new Vector2( boxCollider2D.size.x, 0.001f ), 0f, whatIsGround );
 
-        if ( vert != 0 ) {
-            if ( vert > 0 ) {
-                LookingUp = true;
-            }
+        if ( vert > 0 ) {
+            LookingUp = true;
+        } else if ( vert < 0 ) {
+            Crouched = true;
         } else {
             LookingUp = false;
+            Crouched = false;
         }
 
-        if ( animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" ) ) {
+        bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
+        bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
+        if ( isLookingUp || isCrouched ) {
             return;
         }
 
