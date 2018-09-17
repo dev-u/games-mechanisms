@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour {
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidbody2D;
+    private BoxCollider2D boxCollider2D;
 
     [SerializeField]
     private int jumpForce = 150;
@@ -38,12 +39,22 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private bool falling;
+    public bool Falling {
+        get { return falling; }
+        set {
+            falling = value;
+            animator.SetBool( "falling", falling );
+        }
+    }
+
     #endregion Variables
 
     void Awake () {
         animator = gameObject.GetComponent<Animator>();
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         rigidbody2D = gameObject.GetComponent<Rigidbody2D>();
+        boxCollider2D = gameObject.GetComponent<BoxCollider2D>();
     }
 	
 	// Update is called once per frame
@@ -64,11 +75,13 @@ public class PlayerController : MonoBehaviour {
             Walking = false;
         }
 
-        grounded = Physics2D.OverlapCircle( groundCheck.position, 0.001f, whatIsGround );
+        grounded = Physics2D.OverlapBox( groundCheck.position, new Vector2( boxCollider2D.size.x, 0.001f ), 0f, whatIsGround );
         Jumping = !grounded;
 
         if ( grounded && Input.GetButtonDown( "Jump" ) ) {
             rigidbody2D.AddForce( Vector2.up * jumpForce );
         }
+
+        Falling = ( rigidbody2D.velocity.y < -0.2f );
     }
 }
