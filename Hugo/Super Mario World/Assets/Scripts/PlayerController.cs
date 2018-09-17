@@ -205,7 +205,6 @@ public class PlayerController : MonoBehaviour {
                         Running = true;
                     }
                 }
-
             }
 
             if ( Input.GetButtonUp( "Run" ) ) {
