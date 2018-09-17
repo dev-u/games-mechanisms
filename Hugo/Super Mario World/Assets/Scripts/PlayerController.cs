@@ -65,7 +65,8 @@ public class PlayerController : MonoBehaviour {
         get { return falling; }
         set {
             falling = value;
-            animator.SetBool( "falling", falling );
+            if ( !Crouched )
+                animator.SetBool( "falling", falling );
             if ( falling ) {
                 if ( !Jumping ) {
                     currentTimePenalty( timeUntilMaxSpeed / 3 );
@@ -147,9 +148,18 @@ public class PlayerController : MonoBehaviour {
             Crouched = false;
         }
 
+        if ( grounded ) {
+            Jumping = false;
+
+            if ( Input.GetButtonDown( "Jump" ) ) {
+                Jumping = true;
+                rigidbody2D.AddForce( Vector2.up * jumpForce );
+            }
+        }
+
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
         bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
-        if ( isLookingUp || isCrouched ) {
+        if ( !Jumping && ( isLookingUp || isCrouched ) ) {
             return;
         }
 
@@ -174,6 +184,7 @@ public class PlayerController : MonoBehaviour {
             }
 
             transform.position += Vector3.right * horz * currentSpeed * Time.deltaTime;
+            // rigidbody2D.velocity = Vector2.right * horz * currentSpeed;
 
             if ( horz > 0 ) {
                 spriteRenderer.flipX = false;
@@ -185,15 +196,6 @@ public class PlayerController : MonoBehaviour {
             Walking = false;
             FastWalking = false;
             Running = false;
-        }
-
-        if ( grounded ) {
-            Jumping = false;
-
-            if ( Input.GetButtonDown( "Jump" ) ) {
-                Jumping = true;
-                rigidbody2D.AddForce( Vector2.up * jumpForce );
-            }
         }
 
         Falling = ( rigidbody2D.velocity.y < -0.2f );
