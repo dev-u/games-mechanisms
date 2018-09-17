@@ -69,12 +69,21 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private bool runJumping;
+    public bool RunJumping {
+        get { return runJumping; }
+        set {
+            runJumping = value;
+            animator.SetBool( "runjump", value );
+        }
+    }
+
     private bool falling;
     public bool Falling {
         get { return falling; }
         set {
             falling = value;
-            if ( !Crouched && !SpinJumping )
+            if ( !Crouched && !SpinJumping && !RunJumping )
                 animator.SetBool( "falling", falling );
             if ( falling ) {
                 if ( !Jumping || !SpinJumping ) {
@@ -106,7 +115,7 @@ public class PlayerController : MonoBehaviour {
             if ( fastWalking ) {
                 currentSpeed = fastWalkSpeed;
             } else {
-                // currentTime = 0;
+                currentTime = 0;
                 currentSpeed = walkSpeed;
             }
         }
@@ -160,9 +169,14 @@ public class PlayerController : MonoBehaviour {
         if ( grounded ) {
             Jumping = false;
             SpinJumping = false;
+            RunJumping = false;
 
             if ( Input.GetButtonDown( "Jump" ) ) {
-                Jumping = true;
+                if ( Running ) {
+                    RunJumping = true;
+                } else {
+                    Jumping = true;
+                }
                 rigidbody2D.AddForce( Vector2.up * jumpForce );
             }
 
@@ -174,7 +188,7 @@ public class PlayerController : MonoBehaviour {
 
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
         bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
-        if ( (!Jumping || !SpinJumping) && ( isLookingUp || isCrouched ) ) {
+        if ( ( !Jumping || !SpinJumping || !RunJumping ) && ( isLookingUp || isCrouched ) ) {
             return;
         }
 
@@ -209,8 +223,10 @@ public class PlayerController : MonoBehaviour {
 
         } else {
             Walking = false;
-            FastWalking = false;
-            Running = false;
+            if ( !RunJumping ) {
+                FastWalking = false;
+                Running = false;
+            }
         }
 
         Falling = ( rigidbody2D.velocity.y < -0.2f );
