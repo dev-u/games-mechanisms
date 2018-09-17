@@ -60,15 +60,24 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private bool spinJumping;
+    public bool SpinJumping {
+        get { return spinJumping; }
+        set {
+            spinJumping = value;
+            animator.SetBool( "spinjump", value );
+        }
+    }
+
     private bool falling;
     public bool Falling {
         get { return falling; }
         set {
             falling = value;
-            if ( !Crouched )
+            if ( !Crouched && !SpinJumping )
                 animator.SetBool( "falling", falling );
             if ( falling ) {
-                if ( !Jumping ) {
+                if ( !Jumping || !SpinJumping ) {
                     currentTimePenalty( timeUntilMaxSpeed / 3 );
                 } else if ( !Running ) {
                     currentTimePenalty( timeUntilMaxSpeed / 2 );
@@ -97,7 +106,7 @@ public class PlayerController : MonoBehaviour {
             if ( fastWalking ) {
                 currentSpeed = fastWalkSpeed;
             } else {
-                currentTime = 0;
+                // currentTime = 0;
                 currentSpeed = walkSpeed;
             }
         }
@@ -150,16 +159,22 @@ public class PlayerController : MonoBehaviour {
 
         if ( grounded ) {
             Jumping = false;
+            SpinJumping = false;
 
             if ( Input.GetButtonDown( "Jump" ) ) {
                 Jumping = true;
+                rigidbody2D.AddForce( Vector2.up * jumpForce );
+            }
+
+            if ( Input.GetButtonDown( "SpinJump" ) ) {
+                SpinJumping = true;
                 rigidbody2D.AddForce( Vector2.up * jumpForce );
             }
         }
 
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
         bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
-        if ( !Jumping && ( isLookingUp || isCrouched ) ) {
+        if ( (!Jumping || !SpinJumping) && ( isLookingUp || isCrouched ) ) {
             return;
         }
 
@@ -170,7 +185,7 @@ public class PlayerController : MonoBehaviour {
             if ( Input.GetButton( "Run" ) && !Running ) {
                 FastWalking = true;
 
-                if ( !Jumping && !Falling ) {
+                if ( !Jumping && !Falling && !SpinJumping ) {
                     currentTime += Time.deltaTime;
                     if ( currentTime > timeUntilMaxSpeed ) {
                         Running = true;
