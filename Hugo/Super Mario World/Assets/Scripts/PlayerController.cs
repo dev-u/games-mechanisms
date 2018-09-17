@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour {
         get { return lookingUp; }
         set {
             lookingUp = value;
-            animator.SetBool( "lookinup", lookingUp );
+            animator.SetBool( "lookingup", lookingUp );
         }
     }
 
@@ -142,12 +142,12 @@ public class PlayerController : MonoBehaviour {
             if ( vert > 0 ) {
                 LookingUp = true;
             }
-            if(vert < 0 ) {
-                Crouched = true;
-            }
         } else {
             LookingUp = false;
-            Crouched = false;
+        }
+
+        if ( animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" ) ) {
+            return;
         }
 
         if ( horz != 0f ) {
