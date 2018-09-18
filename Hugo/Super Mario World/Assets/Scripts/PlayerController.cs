@@ -288,7 +288,7 @@ public class PlayerController : MonoBehaviour {
                     currentTime = 0f;
                 currentSmoothStopValue = smoothWalkingStopValue;
             }
-            if ( !RunJumping ) {
+            if ( !RunJumping && !SpinJumping ) {
                 FastWalking = false;
                 Running = false;
             }
