@@ -29,7 +29,9 @@ public class PlayerController : MonoBehaviour {
     private float currentJumpImpulseValue;
     private float currentTime = 0f;
     private float currentSmoothStopValue;
+    private float currentAccelerationSmoothValue;
     private Vector3 defaultPosition;
+    private float currentSlideSmoothValue;
 
     // Jumping
     [SerializeField]
@@ -66,6 +68,8 @@ public class PlayerController : MonoBehaviour {
     private float smoothJumpingStopValue = 20f;
     [SerializeField]
     private float smoothAccelerationValue = 1f;
+    [SerializeField]
+    private float smoothWalkTurnValue = 1.5f;
 
     // Verifies the ground
     public Transform groundCheck;
@@ -141,6 +145,12 @@ public class PlayerController : MonoBehaviour {
         set {
             walkTurn = value;
             animator.SetBool( "walkturn", walkTurn );
+            if ( walkTurn ) {
+                currentAccelerationSmoothValue = smoothWalkTurnValue;
+            } else {
+                currentAccelerationSmoothValue = smoothAccelerationValue;
+            }
+
         }
     }
 
@@ -211,6 +221,7 @@ public class PlayerController : MonoBehaviour {
         currentSpeed = walkSpeed;
         currentSmoothStopValue = smoothWalkingStopValue;
         currentJumpImpulseValue = jumpImpulseStandValue;
+        currentAccelerationSmoothValue = smoothAccelerationValue;
         defaultPosition = transform.position;
 
         audioSource = gameObject.GetComponent<AudioSource>();
@@ -276,21 +287,18 @@ public class PlayerController : MonoBehaviour {
 
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
         bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
-        if ( ( !Jumping && !SpinJumping && !RunJumping && !Falling ) && ( isLookingUp || isCrouched ) ) {
-            return;
-        }
 
-        if ( horz != 0f ) {
+        bool turn = ( velocity.x > 0 && horz < 0 ) || ( velocity.x < 0 && horz > 0 );
+        WalkTurn = turn;
+
+        if ( horz != 0f && !( Crouched && grounded ) ) {
             if ( !Running && !FastWalking )
                 Walking = true;
-
-            bool turn = ( velocity.x > 0 && horz < 0 ) || ( velocity.x < 0 && horz > 0 );
-            WalkTurn = turn;
 
             if ( Input.GetButton( "Run" ) && !Running ) {
                 FastWalking = true;
 
-                if ( !Jumping && !Falling && !SpinJumping ) {
+                if ( !Jumping && !Falling && !SpinJumping && !Crouched ) {
                     currentTime += Time.deltaTime;
                     if ( currentTime > timeUntilMaxSpeed ) {
                         Running = true;
@@ -303,7 +311,8 @@ public class PlayerController : MonoBehaviour {
             }
 
             targetPosition = transform.position + Vector3.right * horz * 10;
-            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smoothAccelerationValue, currentSpeed, Time.deltaTime );
+            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, currentAccelerationSmoothValue, currentSpeed, Time.deltaTime );
+
 
             if ( horz > 0 ) {
                 spriteRenderer.flipX = false;
@@ -315,9 +324,9 @@ public class PlayerController : MonoBehaviour {
             float smooth = currentSmoothStopValue;
             if ( !grounded )
                 smooth = smoothJumpingStopValue;
+           
+            transform.position = Vector3.SmoothDamp( transform.position, transform.position, ref velocity, smooth, currentSpeed, Time.deltaTime );
 
-            targetPosition = transform.position + Vector3.right * horz;
-            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smooth, currentSpeed, Time.deltaTime );
             if ( Mathf.Abs( velocity.x ) < standSpeedCheck ) {
                 Walking = false;
                 currentJumpImpulseValue = jumpImpulseStandValue;
