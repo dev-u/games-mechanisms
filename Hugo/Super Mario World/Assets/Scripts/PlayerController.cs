@@ -18,11 +18,24 @@ public class PlayerController : MonoBehaviour {
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetPosition;
     private float currentSpeed;
+    private float currentJumpImpulseValue;
     private float currentTime = 0f;
     private float currentSmoothStopValue;
 
+    // Jumping
     [SerializeField]
-    private int jumpImpulseValue = 165;
+    private int jumpImpulseStandValue = 120;
+    [SerializeField]
+    private int jumpImpulseWalkingValue = 125;
+    [SerializeField]
+    private int jumpImpulseFastWalkingValue = 130;
+    [SerializeField]
+    private int jumpImpulseRunningValue = 140;
+    [SerializeField]
+    [Range(0, 100)]
+    private int gravityPercOnHold = 60;
+
+    // Running
     [SerializeField]
     private float walkSpeed = 0.65f;
     [SerializeField]
@@ -115,6 +128,9 @@ public class PlayerController : MonoBehaviour {
         set {
             walking = value;
             animator.SetBool( "walking", walking );
+            if ( walking ) {
+                currentJumpImpulseValue = jumpImpulseWalkingValue;
+            }
         }
     }
 
@@ -126,6 +142,7 @@ public class PlayerController : MonoBehaviour {
             animator.SetBool( "fastwalking", fastWalking );
 
             if ( fastWalking ) {
+                currentJumpImpulseValue = jumpImpulseFastWalkingValue;
                 currentSpeed = fastWalkSpeed;
                 currentSmoothStopValue = smoothFastWalkingStopValue;
             } else {
@@ -142,6 +159,7 @@ public class PlayerController : MonoBehaviour {
             running = value;
             animator.SetBool( "running", running );
             if ( running ) {
+                currentJumpImpulseValue = jumpImpulseRunningValue;
                 currentSpeed = runSpeed;
                 currentSmoothStopValue = smoothRunningStopValue;
             } else {
@@ -165,6 +183,7 @@ public class PlayerController : MonoBehaviour {
 
         currentSpeed = walkSpeed;
         currentSmoothStopValue = smoothWalkingStopValue;
+        currentJumpImpulseValue = jumpImpulseStandValue;
     }
 
     // Update is called once per frame
@@ -194,13 +213,19 @@ public class PlayerController : MonoBehaviour {
                 } else {
                     Jumping = true;
                 }
-                rigidbody2D.AddForce( Vector2.up * jumpImpulseValue );
+                rigidbody2D.AddForce( Vector2.up * currentJumpImpulseValue );
             }
 
             if ( Input.GetButtonDown( "SpinJump" ) ) {
                 SpinJumping = true;
-                rigidbody2D.AddForce( Vector2.up * jumpImpulseValue );
+                rigidbody2D.AddForce( Vector2.up * currentJumpImpulseValue );
             }
+        }
+
+        if ( Input.GetButton( "Jump" ) || Input.GetButton( "SpinJump" ) ) {
+            rigidbody2D.gravityScale = gravityPercOnHold / 100f;
+        } else {
+            rigidbody2D.gravityScale = 1f;
         }
 
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
@@ -242,6 +267,7 @@ public class PlayerController : MonoBehaviour {
             transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, currentSmoothStopValue, currentSpeed, Time.deltaTime );
             if ( Mathf.Abs( velocity.x ) < standSpeedCheck ) {
                 Walking = false;
+                currentJumpImpulseValue = jumpImpulseStandValue;
                 if ( grounded )
                     currentTime = 0f;
                 currentSmoothStopValue = smoothWalkingStopValue;
@@ -252,6 +278,6 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
-        Falling = ( rigidbody2D.velocity.y < fallingSpeedCheck );
+        Falling = ( !grounded && rigidbody2D.velocity.y < fallingSpeedCheck );
     }
 }

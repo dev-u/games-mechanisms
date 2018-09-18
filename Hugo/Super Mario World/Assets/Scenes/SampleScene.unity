@@ -501,21 +501,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5ae05eddd636248a1be74b4d112c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentTime: 0
-  jumpImpulseValue: 165
+  jumpImpulseValue: 120
+  gravityPercOnHold: 60
   walkSpeed: 0.65
   fastWalkSpeed: 1.3
   runSpeed: 2
   timeUntilMaxSpeed: 1
-  smoothAccelerationValue: 1
   smoothWalkingStopValue: 0.5
   smoothFastWalkingStopValue: 1
   smoothRunningStopValue: 1.2
+  smoothAccelerationValue: 1
   groundCheck: {fileID: 2131952042}
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
-  grounded: 0
 --- !u!50 &2088072073
 Rigidbody2D:
   serializedVersion: 4
@@ -583,7 +582,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2131952041}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.023, z: 0}
+  m_LocalPosition: {x: 0, y: -0.0154, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2088072070}
