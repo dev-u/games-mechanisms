@@ -26,11 +26,11 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     private int jumpImpulseStandValue = 120;
     [SerializeField]
-    private int jumpImpulseWalkingValue = 125;
+    private int jumpImpulseWalkingValue = 130;
     [SerializeField]
-    private int jumpImpulseFastWalkingValue = 130;
+    private int jumpImpulseFastWalkingValue = 140;
     [SerializeField]
-    private int jumpImpulseRunningValue = 140;
+    private int jumpImpulseRunningValue = 150;
     [SerializeField]
     [Range(0, 100)]
     private int gravityPercOnHold = 60;
@@ -50,6 +50,8 @@ public class PlayerController : MonoBehaviour {
     private float smoothFastWalkingStopValue = 1f;
     [SerializeField]
     private float smoothRunningStopValue = 1.2f;
+    [SerializeField]
+    private float smoothJumpingStopValue = 20f;
     [SerializeField]
     private float smoothAccelerationValue = 1f;
 
@@ -117,7 +119,6 @@ public class PlayerController : MonoBehaviour {
                 } else {
                     currentTimePenalty( currentTime / 4 );
                 }
-
             }
         }
     }
@@ -263,8 +264,12 @@ public class PlayerController : MonoBehaviour {
             }
 
         } else {
+            float smooth = currentSmoothStopValue;
+            if ( !grounded )
+                smooth = smoothJumpingStopValue;
+
             targetPosition = transform.position + Vector3.right * horz;
-            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, currentSmoothStopValue, currentSpeed, Time.deltaTime );
+            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smooth, currentSpeed, Time.deltaTime );
             if ( Mathf.Abs( velocity.x ) < standSpeedCheck ) {
                 Walking = false;
                 currentJumpImpulseValue = jumpImpulseStandValue;

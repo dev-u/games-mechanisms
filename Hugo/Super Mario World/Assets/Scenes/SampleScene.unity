@@ -501,7 +501,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5ae05eddd636248a1be74b4d112c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpImpulseValue: 120
+  jumpImpulseStandValue: 120
+  jumpImpulseWalkingValue: 130
+  jumpImpulseFastWalkingValue: 140
+  jumpImpulseRunningValue: 150
   gravityPercOnHold: 60
   walkSpeed: 0.65
   fastWalkSpeed: 1.3
