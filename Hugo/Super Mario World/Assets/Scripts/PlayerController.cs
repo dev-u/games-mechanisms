@@ -11,11 +11,18 @@ public class PlayerController : MonoBehaviour {
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidbody2D;
     private BoxCollider2D boxCollider2D;
+    private float standSpeedCheck = 0.05f;
+    private float fallingSpeedCheck = -0.2f;
 
     // PlayerController Variables
-    [SerializeField]
-    private int jumpForce = 165;
+    private Vector3 velocity = Vector3.zero;
+    private Vector3 targetPosition;
     private float currentSpeed;
+    private float currentTime = 0f;
+    private float currentSmoothStopValue;
+
+    [SerializeField]
+    private int jumpImpulseValue = 165;
     [SerializeField]
     private float walkSpeed = 0.65f;
     [SerializeField]
@@ -23,13 +30,23 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     private float runSpeed = 2f;
     [SerializeField]
-    private float timeUntilMaxSpeed = 0.6f;
-    private float currentTime = 0f;
+    private float timeUntilMaxSpeed = 1f;
+    [SerializeField]
+    private float smoothAccelerationValue = 2f;
+    [SerializeField]
+    private float smoothWalkingStopValue = 0.5f;
+    [SerializeField]
+    private float smoothFastWalkingStopValue = 1.2f;
+    [SerializeField]
+    private float smoothRunningStopValue = 2f;
+
+
+
 
     // Verifies the ground
     public Transform groundCheck;
     public LayerMask whatIsGround;
-    public bool grounded;
+    private bool grounded;
 
 
     // Animation Controller Variables
@@ -85,11 +102,11 @@ public class PlayerController : MonoBehaviour {
             falling = value;
             if ( !Crouched && !SpinJumping && !RunJumping )
                 animator.SetBool( "falling", falling );
-            if ( falling ) {
-                if ( !Jumping || !SpinJumping ) {
-                    currentTimePenalty( timeUntilMaxSpeed / 3 );
-                } else if ( !Running ) {
-                    currentTimePenalty( timeUntilMaxSpeed / 2 );
+            if ( falling && !Running ) {
+                if ( !Jumping && !SpinJumping ) {
+                    currentTimePenalty( currentTime / 2 );
+                } else {
+                    currentTimePenalty( currentTime / 4 );
                 }
 
             }
@@ -114,8 +131,9 @@ public class PlayerController : MonoBehaviour {
 
             if ( fastWalking ) {
                 currentSpeed = fastWalkSpeed;
+                currentSmoothStopValue = smoothFastWalkingStopValue;
             } else {
-                currentTime = 0;
+                currentTimePenalty( currentTime / 3 );
                 currentSpeed = walkSpeed;
             }
         }
@@ -129,7 +147,9 @@ public class PlayerController : MonoBehaviour {
             animator.SetBool( "running", running );
             if ( running ) {
                 currentSpeed = runSpeed;
+                currentSmoothStopValue = smoothRunningStopValue;
             } else {
+                currentTimePenalty( currentTime / 8 );
                 currentSpeed = walkSpeed;
             }
         }
@@ -148,6 +168,7 @@ public class PlayerController : MonoBehaviour {
         boxCollider2D = gameObject.GetComponent<BoxCollider2D>();
 
         currentSpeed = walkSpeed;
+        currentSmoothStopValue = smoothWalkingStopValue;
     }
 
     // Update is called once per frame
@@ -177,18 +198,18 @@ public class PlayerController : MonoBehaviour {
                 } else {
                     Jumping = true;
                 }
-                rigidbody2D.AddForce( Vector2.up * jumpForce );
+                rigidbody2D.AddForce( Vector2.up * jumpImpulseValue );
             }
 
             if ( Input.GetButtonDown( "SpinJump" ) ) {
                 SpinJumping = true;
-                rigidbody2D.AddForce( Vector2.up * jumpForce );
+                rigidbody2D.AddForce( Vector2.up * jumpImpulseValue );
             }
         }
 
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
         bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
-        if ( ( !Jumping || !SpinJumping || !RunJumping ) && ( isLookingUp || isCrouched ) ) {
+        if ( ( !Jumping && !SpinJumping && !RunJumping && !Falling ) && ( isLookingUp || isCrouched ) ) {
             return;
         }
 
@@ -211,8 +232,8 @@ public class PlayerController : MonoBehaviour {
                 FastWalking = Running = false;
             }
 
-            transform.position += Vector3.right * horz * currentSpeed * Time.deltaTime;
-            // rigidbody2D.velocity = Vector2.right * horz * currentSpeed;
+            targetPosition = transform.position + Vector3.right * horz * 10;
+            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smoothAccelerationValue, currentSpeed, Time.deltaTime );
 
             if ( horz > 0 ) {
                 spriteRenderer.flipX = false;
@@ -221,13 +242,20 @@ public class PlayerController : MonoBehaviour {
             }
 
         } else {
-            Walking = false;
+            targetPosition = transform.position + Vector3.right * horz;
+            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, currentSmoothStopValue, currentSpeed, Time.deltaTime );
+            if ( Mathf.Abs( velocity.x ) < standSpeedCheck ) {
+                Walking = false;
+                if ( grounded )
+                    currentTime = 0f;
+                currentSmoothStopValue = smoothWalkingStopValue;
+            }
             if ( !RunJumping ) {
                 FastWalking = false;
                 Running = false;
             }
         }
 
-        Falling = ( rigidbody2D.velocity.y < -0.2f );
+        Falling = ( rigidbody2D.velocity.y < fallingSpeedCheck );
     }
 }
