@@ -276,11 +276,12 @@ public class PlayerController : MonoBehaviour {
 
         bool isLookingUp = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerLookingUp" );
         bool isCrouched = animator.GetCurrentAnimatorStateInfo( 0 ).IsName( "playerCrouched" );
-        if ( ( !Jumping && !SpinJumping && !RunJumping && !Falling ) && ( isLookingUp || isCrouched ) ) {
-            return;
-        }
+        //if ( isCrouched && grounded ) {
+        //    velocity = Vector3.zero;
+        //    return;
+        //}
 
-        if ( horz != 0f ) {
+        if ( horz != 0f && !( Crouched && grounded ) ) {
             if ( !Running && !FastWalking )
                 Walking = true;
 
@@ -290,7 +291,7 @@ public class PlayerController : MonoBehaviour {
             if ( Input.GetButton( "Run" ) && !Running ) {
                 FastWalking = true;
 
-                if ( !Jumping && !Falling && !SpinJumping ) {
+                if ( !Jumping && !Falling && !SpinJumping && !Crouched ) {
                     currentTime += Time.deltaTime;
                     if ( currentTime > timeUntilMaxSpeed ) {
                         Running = true;
@@ -302,8 +303,10 @@ public class PlayerController : MonoBehaviour {
                 FastWalking = Running = false;
             }
 
-            targetPosition = transform.position + Vector3.right * horz * 10;
-            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smoothAccelerationValue, currentSpeed, Time.deltaTime );
+            if ( !( isCrouched && grounded ) ) {
+                targetPosition = transform.position + Vector3.right * horz * 10;
+                transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smoothAccelerationValue, currentSpeed, Time.deltaTime );
+            }
 
             if ( horz > 0 ) {
                 spriteRenderer.flipX = false;
