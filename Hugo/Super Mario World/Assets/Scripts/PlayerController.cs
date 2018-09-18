@@ -32,22 +32,18 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     private float timeUntilMaxSpeed = 1f;
     [SerializeField]
-    private float smoothAccelerationValue = 2f;
-    [SerializeField]
     private float smoothWalkingStopValue = 0.5f;
     [SerializeField]
-    private float smoothFastWalkingStopValue = 1.2f;
+    private float smoothFastWalkingStopValue = 1f;
     [SerializeField]
-    private float smoothRunningStopValue = 2f;
-
-
-
+    private float smoothRunningStopValue = 1.2f;
+    [SerializeField]
+    private float smoothAccelerationValue = 1f;
 
     // Verifies the ground
     public Transform groundCheck;
     public LayerMask whatIsGround;
     private bool grounded;
-
 
     // Animation Controller Variables
     private bool lookingUp;
