@@ -14,6 +14,14 @@ public class PlayerController : MonoBehaviour {
     private float standSpeedCheck = 0.05f;
     private float fallingSpeedCheck = -0.2f;
 
+    // Audio Variables
+    private AudioSource audioSource;
+    public enum ENUM_AUDIO {
+        player_jumping,
+        player_spin_jumping
+    }
+    public static Dictionary<ENUM_AUDIO, AudioClip> audio_player;
+
     // PlayerController Variables
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetPosition;
@@ -189,6 +197,11 @@ public class PlayerController : MonoBehaviour {
         currentTime = Mathf.Max( 0f, currentTime - penalty );
     }
 
+    void Play( AudioClip audio ) {
+        audioSource.clip = audio;
+        audioSource.Play();
+    }
+
     void Awake() {
         animator = gameObject.GetComponent<Animator>();
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
@@ -199,6 +212,13 @@ public class PlayerController : MonoBehaviour {
         currentSmoothStopValue = smoothWalkingStopValue;
         currentJumpImpulseValue = jumpImpulseStandValue;
         defaultPosition = transform.position;
+
+        audioSource = gameObject.GetComponent<AudioSource>();
+        audio_player = new Dictionary<ENUM_AUDIO, AudioClip>()
+        {
+            { ENUM_AUDIO.player_jumping , Resources.Load<AudioClip>("Audios/smw_jump")},
+            { ENUM_AUDIO.player_spin_jumping , Resources.Load<AudioClip>("Audios/smw_spin_jump")},
+        };
     }
 
     void ResetPosition() {
@@ -232,6 +252,7 @@ public class PlayerController : MonoBehaviour {
             RunJumping = false;
 
             if ( Input.GetButtonDown( "Jump" ) ) {
+                Play( audio_player[ENUM_AUDIO.player_jumping] );
                 if ( Running ) {
                     RunJumping = true;
                 } else {
@@ -241,6 +262,7 @@ public class PlayerController : MonoBehaviour {
             }
 
             if ( Input.GetButtonDown( "SpinJump" ) ) {
+                Play( audio_player[ENUM_AUDIO.player_spin_jumping] );
                 SpinJumping = true;
                 rigidbody2D.AddForce( Vector2.up * currentJumpImpulseValue * spinJumpPercImpulse / 100f );
             }
@@ -263,7 +285,7 @@ public class PlayerController : MonoBehaviour {
                 Walking = true;
 
             bool turn = ( velocity.x > 0 && horz < 0 ) || ( velocity.x < 0 && horz > 0 );
-            WalkTurn = turn;    
+            WalkTurn = turn;
 
             if ( Input.GetButton( "Run" ) && !Running ) {
                 FastWalking = true;
