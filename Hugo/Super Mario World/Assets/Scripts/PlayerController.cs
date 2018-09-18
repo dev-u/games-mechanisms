@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour {
     private float currentJumpImpulseValue;
     private float currentTime = 0f;
     private float currentSmoothStopValue;
+    private Vector3 defaultPosition;
 
     // Jumping
     [SerializeField]
@@ -185,10 +186,20 @@ public class PlayerController : MonoBehaviour {
         currentSpeed = walkSpeed;
         currentSmoothStopValue = smoothWalkingStopValue;
         currentJumpImpulseValue = jumpImpulseStandValue;
+        defaultPosition = transform.position;
+    }
+
+    void ResetPosition() {
+        transform.position = defaultPosition;
+        rigidbody2D.velocity = Vector2.zero;
     }
 
     // Update is called once per frame
     void FixedUpdate() {
+
+        if ( transform.position.y < -0.5 )
+            ResetPosition();
+
         float horz = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
 
