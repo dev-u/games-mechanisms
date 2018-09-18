@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour {
     private float currentSmoothStopValue;
     private float currentAccelerationSmoothValue;
     private Vector3 defaultPosition;
+    private float currentSlideSmoothValue;
 
     // Jumping
     [SerializeField]
@@ -149,7 +150,7 @@ public class PlayerController : MonoBehaviour {
             } else {
                 currentAccelerationSmoothValue = smoothAccelerationValue;
             }
-                
+
         }
     }
 
@@ -323,9 +324,9 @@ public class PlayerController : MonoBehaviour {
             float smooth = currentSmoothStopValue;
             if ( !grounded )
                 smooth = smoothJumpingStopValue;
+           
+            transform.position = Vector3.SmoothDamp( transform.position, transform.position, ref velocity, smooth, currentSpeed, Time.deltaTime );
 
-            targetPosition = transform.position + Vector3.right * horz;
-            transform.position = Vector3.SmoothDamp( transform.position, targetPosition, ref velocity, smooth, currentSpeed, Time.deltaTime );
             if ( Mathf.Abs( velocity.x ) < standSpeedCheck ) {
                 Walking = false;
                 currentJumpImpulseValue = jumpImpulseStandValue;
