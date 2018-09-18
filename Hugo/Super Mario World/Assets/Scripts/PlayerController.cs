@@ -127,6 +127,15 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private bool walkTurn;
+    public bool WalkTurn {
+        get { return walkTurn; }
+        set {
+            walkTurn = value;
+            animator.SetBool( "walkturn", walkTurn );
+        }
+    }
+
     private bool walking;
     public bool Walking {
         get { return walking; }
@@ -252,6 +261,9 @@ public class PlayerController : MonoBehaviour {
         if ( horz != 0f ) {
             if ( !Running && !FastWalking )
                 Walking = true;
+
+            bool turn = ( velocity.x > 0 && horz < 0 ) || ( velocity.x < 0 && horz > 0 );
+            WalkTurn = turn;    
 
             if ( Input.GetButton( "Run" ) && !Running ) {
                 FastWalking = true;
