@@ -35,6 +35,9 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     [Range(0, 100)]
     private int gravityPercOnHold = 60;
+    [SerializeField]
+    [Range(0, 100)]
+    private int spinJumpPercImpulse = 90;
 
     // Running
     [SerializeField]
@@ -230,7 +233,7 @@ public class PlayerController : MonoBehaviour {
 
             if ( Input.GetButtonDown( "SpinJump" ) ) {
                 SpinJumping = true;
-                rigidbody2D.AddForce( Vector2.up * currentJumpImpulseValue );
+                rigidbody2D.AddForce( Vector2.up * currentJumpImpulseValue * spinJumpPercImpulse / 100f );
             }
         }
 
